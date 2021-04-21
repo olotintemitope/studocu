@@ -29,5 +29,5 @@ There is no requirement whatsoever to use this system, it is only included for y
 
 ### I really want this job
 - Make a new console command to be run with `php artisan qanda:reset` that removes all previous progresses.
-- Write (a) unit test(s).
+- Write tests.
 
