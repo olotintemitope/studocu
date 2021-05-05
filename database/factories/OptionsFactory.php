@@ -8,9 +8,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Option::class, function (Faker $faker) {
     return [
-        'option' => $faker->shuffleString(),
-        'question_id' => function($option) {
-            return Option::find($option['option'])->question_id;
-        }
+        'option' => $faker->title,
+        'question_id' => random_int(1, 10)
     ];
 });
