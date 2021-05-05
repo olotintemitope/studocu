@@ -37,8 +37,17 @@ class QAndA extends Command
      */
     public function handle()
     {
-        $this->info('Hello world!');
+        $defaultIndex = 0;
+
+        $this->info('Welcome to interactive Q And A system');
 
         // Create your interactive Q And A system here. Be sure to make use of all of Laravels functionalities.
+
+        $chosenOption = $this->choice(
+            'What will you like to do?', [
+                'Add Questions And Answer', 'View Previous Answers'
+            ],
+            $defaultIndex
+        );
     }
 }
