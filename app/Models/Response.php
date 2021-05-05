@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class response extends Pivot
+class Response extends Pivot
 {
 	protected $table = 'responses';
 
