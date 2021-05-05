@@ -49,5 +49,7 @@ class QAndA extends Command
             ],
             $defaultIndex
         );
+
+        dd($chosenOption);
     }
 }
