@@ -4,7 +4,7 @@
 namespace App\Console\Commands\Contracts;
 
 
-interface QuestionInterface
+interface QuestionInterface extends BaseInterface
 {
 
 }

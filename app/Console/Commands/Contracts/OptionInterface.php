@@ -4,7 +4,7 @@
 namespace App\Console\Commands\Contracts;
 
 
-interface OptionInterface
+interface OptionInterface extends BaseInterface
 {
 
 }
