@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Lang;
 
 class QAndA extends Command
 {
@@ -44,12 +45,11 @@ class QAndA extends Command
         // Create your interactive Q And A system here. Be sure to make use of all of Laravels functionalities.
 
         $chosenOption = $this->choice(
-            'What will you like to do?', [
-                'Add Questions And Answer', 'View Previous Answers'
+            Lang::get('qanda.question'), [
+            Lang::get('qanda.question.opt_1'),
+            Lang::get('qanda.question.opt_2')
             ],
             $defaultIndex
         );
-
-        dd($chosenOption);
     }
 }
