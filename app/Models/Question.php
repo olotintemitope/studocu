@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -30,8 +29,13 @@ class Question extends Model
         return $this->hasMany(Option::class);
     }
 
-    public function chosenAnswer(): BelongsTo
+    /**
+     * @param $query
+     * @param $question
+     * @return mixed
+     */
+    public function scopeOfWhereQuestion($query, $question)
     {
-        return $this->belongsTo(Answer::class, 'responses');
+       return $query->where('question', $question);
     }
 }
