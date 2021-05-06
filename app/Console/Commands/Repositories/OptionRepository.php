@@ -3,12 +3,11 @@
 
 namespace App\Console\Commands\Repositories;
 
-
-use App\Console\Commands\Contracts\BaseInterface;
+use App\Console\Commands\Contracts\OptionInterface;
 use App\Models\Option;
 use App\Models\Question;
 
-class OptionRepository implements BaseInterface
+class OptionRepository implements OptionInterface
 {
     /**
      * @var Question

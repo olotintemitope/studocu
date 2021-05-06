@@ -4,11 +4,11 @@
 namespace App\Console\Commands\Repositories;
 
 
-use App\Console\Commands\Contracts\BaseInterface;
+use App\Console\Commands\Contracts\AnswerInterface;
 use App\Models\Answer;
 use App\Models\Question;
 
-class AnswerRepository implements BaseInterface
+class AnswerRepository implements AnswerInterface
 {
     /**
      * @var Question

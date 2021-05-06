@@ -3,11 +3,11 @@
 
 namespace App\Console\Commands\Repositories;
 
-
-use App\Console\Commands\Contracts\BaseInterface;
+use App\Console\Commands\Contracts\QuestionInterface;
 use App\Models\Question;
+use Illuminate\Support\Collection;
 
-class QuestionRepository implements BaseInterface
+class QuestionRepository implements QuestionInterface
 {
     /**
      * @var Question
@@ -36,5 +36,15 @@ class QuestionRepository implements BaseInterface
         }
 
         return $allQuestions;
+    }
+
+    public function getAll(): Collection
+    {
+        return $this->model::all();
+    }
+
+    public function model(): Question
+    {
+        return $this->model;
     }
 }

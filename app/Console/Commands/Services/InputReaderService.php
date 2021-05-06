@@ -60,4 +60,12 @@ class InputReaderService
         return $this->command
             ->ask(Lang::get('qanda.question.answers.ask'));
     }
+
+    public function askMultipleChoiceQuestion(string $lang, array $questions): string
+    {
+        return $this->command->choice(
+            $lang,
+            $questions
+        );
+    }
 }
