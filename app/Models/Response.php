@@ -8,19 +8,19 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Response extends Model
 {
-	protected $table = 'responses';
+    protected $table = 'responses';
 
-	/**
-	 * The attributes that are mass assignable.
-	 * 
-	 * @var array
-	 */
-	protected $fillable = [
-		'question_id',
-		'answer',
-	];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'question_id',
+        'answer',
+    ];
 
-	public function question(): BelongsTo
+    public function question(): BelongsTo
     {
         return $this->belongsTo(Question::class);
     }
