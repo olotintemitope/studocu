@@ -28,4 +28,5 @@ return [
     'questions.correct_answer.percentage' => '* You got :percentage% answers correctly',
     'questions.answers' => '* You got :rightAnswer question(s) right, while you got :wrongAnswer question(s) wrong',
     'bye' => 'We are sorry to see you go. Bye!',
+    'reset_msg' => 'You now have a clean slate',
 ];
