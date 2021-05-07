@@ -8,9 +8,7 @@ use App\Console\Commands\Contracts\QuestionInterface;
 use App\Console\Commands\Contracts\ResponseInterface;
 use App\Console\Commands\Services\InputReaderService;
 use App\Console\Commands\Services\ReportService;
-use App\Models\Response;
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Whoops\Exception\ErrorException;
@@ -35,19 +33,19 @@ class QAndA extends Command
      */
     private $inputReader;
     /**
-     * @var QuestionRepository
+     * @var QuestionInterface
      */
     private $question;
     /**
-     * @var OptionRepository
+     * @var OptionInterface
      */
     private $option;
     /**
-     * @var AnswerRepository
+     * @var AnswerInterface
      */
     private $answer;
     /**
-     * @var ResponseRepository
+     * @var ResponseInterface
      */
     private $response;
     /**
@@ -81,7 +79,7 @@ class QAndA extends Command
         $this->response = $responseRepository;
 
         $this->inputReader = new $inputReader($this);
-        $this->summary = new $report($responseRepository, $questionRepository);
+        $this->summary = new $report($responseRepository, $questionRepository, $this);
     }
 
     /**
@@ -93,13 +91,10 @@ class QAndA extends Command
     {
         $this->info(Lang::get('qanda.welcome_msg'));
         // Create your interactive Q And A system here. Be sure to make use of all of Laravels functionalities.
+
         $chosenOption = $this->inputReader->chooseOption();
-
         if ($chosenOption === Lang::get('qanda.question.opt_1')) {
-            $answer = null;
-            $chosenAnswer = null;
-            $qAndA = [];
-
+            [$answer, $qAndA] = $this->getInitializedVar();
             do {
                 $question = $this->inputReader->askQuestion();
                 if ($question === Lang::get('qanda.exit')) {
@@ -110,19 +105,14 @@ class QAndA extends Command
                     $answer = $this->inputReader->provideAnswers();
                 }
                 if (!empty($answer)) {
-                    $answers = explode(', ', trim($answer));
-                    $qAndA[$question][] = $answers;
-
-                    $chosenAnswer = $this->inputReader->chooseAnAnswer($answers);
-                    $qAndA[$question][] = $chosenAnswer;
+                    [$answers, $qAndA] = $this->getAnsweredQuestions($answer, $qAndA, $question);
+                    $qAndA = $this->getChosenAnswers($answers, $qAndA, $question);
                 }
             } while (true);
 
             try {
                 $this->InsertQAndA($qAndA);
                 $this->info(Lang::get('qanda.insert_success_msg'));
-            } catch (\RuntimeException $exception) {
-                $this->error($exception->getMessage());
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
             }
@@ -130,7 +120,7 @@ class QAndA extends Command
 
         if ($chosenOption === Lang::get('qanda.question.opt_2')) {
             do {
-                $questions = $this->getUnansweredQuestions();
+                $questions = $this->question->getUnansweredQuestions();
                 if ($questions->count() <= 0) {
                     break;
                 }
@@ -145,11 +135,7 @@ class QAndA extends Command
                 }
 
                 if ($question !== Lang::get('exit')) {
-                    $chosenQuestion = $this->question->model()::OfWhereQuestion($question)->first();
-                    $answerProvided = $this->inputReader->askMultipleChoiceQuestion(
-                        $chosenQuestion->question,
-                        $chosenQuestion->options->pluck('option')->toArray()
-                    );
+                    [$chosenQuestion, $answerProvided] = $this->getChosenQuestion($question);
 
                     try {
                         $this->response->insert(
@@ -157,8 +143,8 @@ class QAndA extends Command
                         );
                         $this->info(Lang::get('qanda.insert_success_msg'));
 
-                        if ($this->getUnansweredQuestions()->count() > 0) {
-                            $this->table($this->getReportTableHeaders(), $this->getCompletedQuestions());
+                        if ($this->question->getUnansweredQuestions()->count() > 0) {
+                            $this->table($this->summary->getReportTableHeaders(), $this->summary->getCompletedQuestions());
                         }
                     } catch (\Exception $exception) {
                         $this->error($exception->getMessage());
@@ -167,8 +153,44 @@ class QAndA extends Command
 
             } while (true);
 
-            $this->getReportSummary();
+            $this->summary->getReport();
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getInitializedVar(): array
+    {
+        $answer = null;
+        $qAndA = [];
+        return [$answer, $qAndA];
+    }
+
+    /**
+     * @param string $answer
+     * @param $qAndA
+     * @param string $question
+     * @return array
+     */
+    protected function getAnsweredQuestions(string $answer, $qAndA, string $question): array
+    {
+        $answers = explode(', ', trim($answer));
+        $qAndA[$question][] = $answers;
+        return [$answers, $qAndA];
+    }
+
+    /**
+     * @param $answers
+     * @param $qAndA
+     * @param array|null $question
+     * @return mixed
+     */
+    protected function getChosenAnswers($answers, $qAndA, string $question)
+    {
+        $chosenAnswer = $this->inputReader->chooseAnAnswer($answers);
+        $qAndA[$question][] = $chosenAnswer;
+        return $qAndA;
     }
 
     /**
@@ -190,75 +212,16 @@ class QAndA extends Command
     }
 
     /**
-     * @return Collection
+     * @param string $question
+     * @return array
      */
-    protected function getUnansweredQuestions(): Collection
+    protected function getChosenQuestion(string $question): array
     {
-        $answeredQuestions = $this->response->getAll()->pluck('question_id')->toArray();
-
-        return $this->question->getAll()
-            ->filter(static function ($question) use ($answeredQuestions) {
-                return !in_array($question->id, $answeredQuestions, true);
-            })
-            ->pluck('question');
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getReportTableHeaders(): array
-    {
-        return [
-            'Question',
-            'Your Answer',
-            'Correct Answer',
-            'Status'
-        ];
-    }
-
-    /**
-     * @return mixed
-     */
-    protected function getCompletedQuestions()
-    {
-        return $this->response->getAll()->reduce(function ($arr, Response $response) {
-            $question = $response->question;
-            $yourAnswer = $response->answer;
-            $correctAnswer = $question->answer->answer;
-            $arr[] = [
-                $question->question,
-                $yourAnswer,
-                $correctAnswer,
-                $yourAnswer === $correctAnswer ? '✓' : 'X',
-            ];
-
-            return $arr;
-        }, []);
-    }
-
-    protected function getReportSummary(): void
-    {
-        $this->info(Lang::get('qanda.response_summary'));
-        $this->table($this->getReportTableHeaders(), $this->getCompletedQuestions());
-
-        $this->info(Lang::get('qanda.questions.completion_percentage', [
-            'percentage' => $this->summary->getCompletedPercentage()
-        ]));
-
-        [$completed, $total] = $this->summary->getNoOfCompletedQuestions();
-        $this->info(Lang::get('qanda.questions.total_completion', [
-            'completed' => $completed,
-            'total' => $total
-        ]));
-
-        $this->info(Lang::get('qanda.questions.correct_answer.percentage', [
-            'percentage' => $this->summary->getPercentageOfCorrectAnswers()
-        ]));
-
-        [$rightAnswerCounts, $wrongAnswerCounts] = $this->summary->getNoOfCompletedRightAnswers();
-        $this->info(Lang::get('qanda.questions.answers', [
-            'rightAnswer' => $rightAnswerCounts,
-            'wrongAnswer' => $wrongAnswerCounts
-        ]));
+        $chosenQuestion = $this->question->model()::OfWhereQuestion($question)->first();
+        $answerProvided = $this->inputReader->askMultipleChoiceQuestion(
+            $chosenQuestion->question,
+            $chosenQuestion->options->pluck('option')->toArray()
+        );
+        return [$chosenQuestion, $answerProvided];
     }
 }

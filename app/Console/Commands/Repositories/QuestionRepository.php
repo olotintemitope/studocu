@@ -5,6 +5,7 @@ namespace App\Console\Commands\Repositories;
 
 use App\Console\Commands\Contracts\QuestionInterface;
 use App\Models\Question;
+use App\Models\Response;
 use Illuminate\Support\Collection;
 
 class QuestionRepository implements QuestionInterface
@@ -46,5 +47,19 @@ class QuestionRepository implements QuestionInterface
     public function model(): Question
     {
         return $this->model;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getUnansweredQuestions(): Collection
+    {
+        $answeredQuestions = Response::all()->pluck('question_id')->toArray();
+
+        return $this->getAll()
+            ->filter(static function ($question) use ($answeredQuestions) {
+                return !in_array($question->id, $answeredQuestions, true);
+            })
+            ->pluck('question');
     }
 }
