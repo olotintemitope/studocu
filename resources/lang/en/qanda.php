@@ -15,7 +15,7 @@ return [
     'welcome.msg' => 'Welcome to interactive Q And A system',
     'question' => 'What will you like to do?',
     'question.opt_1' => 'Add Questions And Answer',
-    'question.opt_2' => 'View Previous Answers',
+    'question.opt_2' => 'View Answers',
     'question.ask' => 'Enter your question?',
     'question.answers.ask' => 'Add answers separated by a comma. E.g (bay, bathroom, boy)',
     'question.answers.answer.ask' => 'Pls choose the answer from the options',
