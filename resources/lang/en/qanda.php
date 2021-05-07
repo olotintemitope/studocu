@@ -19,7 +19,7 @@ return [
     'question.ask' => 'Enter your question?',
     'question.answers.ask' => 'Add answers separated by a comma. E.g (bay, bathroom, boy)',
     'question.answers.answer.ask' => 'Pls choose the answer from the options',
-    'exit' => 'exit',
+    'exit' => 'Exit',
     'insert_success_msg' => 'Record successfully added',
     'question_to_practice' => 'Choose the questions to practice?',
     'response_summary' => 'Here are the summaries of your Q and A',
@@ -27,4 +27,5 @@ return [
     'questions.total_completion' => '* You completed :completed question(s) out of :total question(s)',
     'questions.correct_answer.percentage' => '* You got :percentage% answers correctly',
     'questions.answers' => '* You got :rightAnswer question(s) right, while you got :wrongAnswer question(s) wrong',
+    'bye' => 'We are sorry to see you go. Bye!',
 ];
