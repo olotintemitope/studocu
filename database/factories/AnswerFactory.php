@@ -2,13 +2,14 @@
 
 /** @var Factory $factory */
 
-use App\Models\Option;
+use App\Model;
+use App\Models\Answer;
 use Faker\Generator as Faker;
 use Illuminate\Database\Eloquent\Factory;
 
-$factory->define(Option::class, function (Faker $faker) {
+$factory->define(Answer::class, function (Faker $faker) {
     return [
-        'option' => $faker->title,
+        'answer' => $faker->title,
         'question_id' => random_int(1, 10)
     ];
 });
