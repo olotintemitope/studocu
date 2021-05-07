@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Lang;
 
 class ReportService
 {
+    const ZERO_VALUE = 0;
     /**
      * @var ResponseRepository
      */
@@ -46,8 +47,8 @@ class ReportService
     public function getNoOfCompletedQuestions(): array
     {
         return [
-            $this->question->getAll()->count(),
             $this->response->getAll()->count(),
+            $this->question->getAll()->count(),
         ];
     }
 
@@ -57,7 +58,11 @@ class ReportService
 
         $answers = $this->getResponseAnswers($responses);
 
-        return ($answers['right_answer'] / $responses->count()) * 100;
+        return (
+            $answers['right_answer'] > 0
+                ? $answers['right_answer'] / $responses->count()
+                : self::ZERO_VALUE
+            ) * 100;
     }
 
     public function getNoOfCompletedRightAnswers(): array

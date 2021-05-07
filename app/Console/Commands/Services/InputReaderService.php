@@ -62,7 +62,7 @@ class InputReaderService
             ->ask(Lang::get('qanda.question.answers.ask'));
     }
 
-    public function chooseYourQuestion(string $lang, array $questions): string
+    public function chooseAnyQuestion(string $lang, array $questions): string
     {
         return $this->command->choice(
             $lang,

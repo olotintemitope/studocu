@@ -9,6 +9,7 @@ use App\Console\Commands\Contracts\ResponseInterface;
 use App\Console\Commands\Services\InputReaderService;
 use App\Console\Commands\Services\ReportService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Lang;
 use Whoops\Exception\ErrorException;
@@ -103,7 +104,7 @@ class QAndA extends Command
                 if ($this->readyToExit($question)) {
                     break;
                 }
-                if (!empty($question) && $question !== Lang::get('qanda.exit')) {
+                if (!empty($question) && !$this->readyToExit($question)) {
                     $qAndA[$question] = [];
                     $answer = $this->inputReader->provideAnAnswer();
                 }
@@ -131,16 +132,17 @@ class QAndA extends Command
                     break;
                 }
 
-                $question = $this->inputReader->chooseYourQuestion(
+                $questions = $this->getQuestionsWithExitOption($questions);
+                $question = $this->inputReader->chooseAnyQuestion(
                     Lang::get('qanda.question_to_practice'),
-                    $questions->toArray()
+                    $questions
                 );
 
-                if ($question === Lang::get('exit')) {
+                if ($this->readyToExit($question)) {
                     break;
                 }
 
-                if ($question !== Lang::get('exit')) {
+                if (!$this->readyToExit($question)) {
                     [$chosenQuestion, $answerProvided] = $this->getChosenQuestion($question);
                     try {
                         $this->response->insert(
@@ -223,7 +225,8 @@ class QAndA extends Command
     protected function getChosenQuestion(string $question): array
     {
         $chosenQuestion = $this->question->model()::OfWhereQuestion($question)->first();
-        $answerProvided = $this->inputReader->chooseYourQuestion(
+
+        $answerProvided = $this->inputReader->chooseAnyQuestion(
             $chosenQuestion->question,
             $chosenQuestion->options->pluck('option')->toArray()
         );
@@ -238,5 +241,17 @@ class QAndA extends Command
     {
         return $question === Lang::get('qanda.exit') ||
             $question === strtolower(Lang::get('qanda.exit'));
+    }
+
+    /**
+     * @param Collection $questions
+     * @return array
+     */
+    protected function getQuestionsWithExitOption(Collection $questions): array
+    {
+        $questions->toArray();
+        $questions[] = Lang::get('qanda.exit');
+
+        return $questions->toArray();
     }
 }
