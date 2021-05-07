@@ -107,7 +107,7 @@ class ReportService
         [$completed, $total] = $this->getNoOfCompletedQuestions();
         $this->console->info(Lang::get('qanda.questions.total_completion', [
             'completed' => $completed,
-            'total' => $total
+            'total' => $total,
         ]));
 
         $this->console->info(Lang::get('qanda.questions.correct_answer.percentage', [
@@ -117,7 +117,7 @@ class ReportService
         [$rightAnswerCounts, $wrongAnswerCounts] = $this->getNoOfCompletedRightAnswers();
         $this->console->info(Lang::get('qanda.questions.answers', [
             'rightAnswer' => $rightAnswerCounts,
-            'wrongAnswer' => $wrongAnswerCounts
+            'wrongAnswer' => $wrongAnswerCounts,
         ]));
     }
 
@@ -130,7 +130,7 @@ class ReportService
             'Question',
             'Your Answer',
             'Correct Answer',
-            'Status'
+            'Status',
         ];
     }
 
@@ -139,16 +139,17 @@ class ReportService
      */
     public function getCompletedQuestions()
     {
-        return $this->response->getAll()->reduce(function ($arr, Response $response) {
-            $question = $response->question;
-            $yourAnswer = $response->answer;
-            $correctAnswer = $question->answer->answer;
-            $arr[] = [
-                $question->question,
-                $yourAnswer,
-                $correctAnswer,
-                $yourAnswer === $correctAnswer ? '✓' : 'X',
-            ];
+        return $this->response->getAll()
+            ->reduce(function ($arr, Response $response) {
+                $question = $response->question;
+                $yourAnswer = $response->answer;
+                $correctAnswer = $question->answer->answer;
+                $arr[] = [
+                    $question->question,
+                    $yourAnswer,
+                    $correctAnswer,
+                    $yourAnswer === $correctAnswer ? '✓' : 'X',
+                ];
 
             return $arr;
         }, []);

@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'welcome.msg' => 'Welcome to interactive Q And A system',
+    'welcome_msg' => 'Welcome to interactive Q And A system',
     'question' => 'What will you like to do?',
     'question.opt_1' => 'Add questions and answers',
     'question.opt_2' => 'View the questions',

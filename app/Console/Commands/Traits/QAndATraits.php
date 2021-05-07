@@ -29,8 +29,9 @@ trait QAndATraits
      */
     protected function getAnsweredQuestions(string $answer, $qAndA, string $question): array
     {
-        $answers = explode(', ', trim($answer));
+        $answers = explode(',', trim($answer));
         $qAndA[$question][] = $answers;
+
         return [$answers, $qAndA];
     }
 

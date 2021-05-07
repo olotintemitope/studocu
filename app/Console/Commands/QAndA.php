@@ -104,10 +104,12 @@ class QAndA extends Command
                 if ($this->readyToExit($question)) {
                     break;
                 }
+
                 if ($this->userWillNotExit($question)) {
                     $qAndA[$question] = [];
                     $answer = $this->inputReader->provideAnAnswer();
                 }
+
                 if (!empty($answer)) {
                     [$answers, $qAndA] = $this->getAnsweredQuestions($answer, $qAndA, $question);
                     $qAndA = $this->getChosenAnswers($answers, $qAndA, $question);

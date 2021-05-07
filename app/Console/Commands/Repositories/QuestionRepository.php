@@ -62,4 +62,13 @@ class QuestionRepository implements QuestionInterface
             })
             ->pluck('question');
     }
+
+    /**
+     * @param array $data
+     * @return Question
+     */
+    public function create(array $data): Question
+    {
+        return $this->model::create($data);
+    }
 }
