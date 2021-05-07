@@ -91,18 +91,21 @@ class QAndA extends Command
     {
         $this->info(Lang::get('qanda.welcome_msg'));
         // Create your interactive Q And A system here. Be sure to make use of all of Laravels functionalities.
-
         $chosenOption = $this->inputReader->chooseOption();
+        if ($chosenOption === Lang::get('qanda.exit')) {
+           return $this->info(Lang::get('qanda.bye'));
+        }
+
         if ($chosenOption === Lang::get('qanda.question.opt_1')) {
             [$answer, $qAndA] = $this->getInitializedVar();
             do {
                 $question = $this->inputReader->askQuestion();
-                if ($question === Lang::get('qanda.exit')) {
+                if ($this->readyToExit($question)) {
                     break;
                 }
                 if (!empty($question) && $question !== Lang::get('qanda.exit')) {
                     $qAndA[$question] = [];
-                    $answer = $this->inputReader->provideAnswers();
+                    $answer = $this->inputReader->provideAnAnswer();
                 }
                 if (!empty($answer)) {
                     [$answers, $qAndA] = $this->getAnsweredQuestions($answer, $qAndA, $question);
@@ -111,8 +114,11 @@ class QAndA extends Command
             } while (true);
 
             try {
-                $this->InsertQAndA($qAndA);
-                $this->info(Lang::get('qanda.insert_success_msg'));
+                if (count($qAndA) > 0) {
+                    $this->InsertQAndA($qAndA);
+                    $this->info(Lang::get('qanda.insert_success_msg'));
+                }
+                $this->info(Lang::get('qanda.bye'));
             } catch (\Exception $e) {
                 $this->error($e->getMessage());
             }
@@ -125,7 +131,7 @@ class QAndA extends Command
                     break;
                 }
 
-                $question = $this->inputReader->askMultipleChoiceQuestion(
+                $question = $this->inputReader->chooseYourQuestion(
                     Lang::get('qanda.question_to_practice'),
                     $questions->toArray()
                 );
@@ -136,7 +142,6 @@ class QAndA extends Command
 
                 if ($question !== Lang::get('exit')) {
                     [$chosenQuestion, $answerProvided] = $this->getChosenQuestion($question);
-
                     try {
                         $this->response->insert(
                             $this->response->prepareData([$chosenQuestion->id, $answerProvided])
@@ -218,10 +223,20 @@ class QAndA extends Command
     protected function getChosenQuestion(string $question): array
     {
         $chosenQuestion = $this->question->model()::OfWhereQuestion($question)->first();
-        $answerProvided = $this->inputReader->askMultipleChoiceQuestion(
+        $answerProvided = $this->inputReader->chooseYourQuestion(
             $chosenQuestion->question,
             $chosenQuestion->options->pluck('option')->toArray()
         );
         return [$chosenQuestion, $answerProvided];
+    }
+
+    /**
+     * @param string $question
+     * @return bool
+     */
+    protected function readyToExit(string $question): bool
+    {
+        return $question === Lang::get('qanda.exit') ||
+            $question === strtolower(Lang::get('qanda.exit'));
     }
 }

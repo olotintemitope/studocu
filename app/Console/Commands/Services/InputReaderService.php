@@ -33,6 +33,7 @@ class InputReaderService
                 Lang::get('qanda.question'), [
                 Lang::get('qanda.question.opt_1'),
                 Lang::get('qanda.question.opt_2'),
+                Lang::get('qanda.exit'),
             ],
                 $defaultIndex
             );
@@ -55,13 +56,13 @@ class InputReaderService
     /**
      * @return mixed
      */
-    public function provideAnswers(): string
+    public function provideAnAnswer(): ?string
     {
         return $this->command
             ->ask(Lang::get('qanda.question.answers.ask'));
     }
 
-    public function askMultipleChoiceQuestion(string $lang, array $questions): string
+    public function chooseYourQuestion(string $lang, array $questions): string
     {
         return $this->command->choice(
             $lang,
