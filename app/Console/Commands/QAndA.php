@@ -104,7 +104,7 @@ class QAndA extends Command
                 if ($this->readyToExit($question)) {
                     break;
                 }
-                if (!empty($question) && !$this->readyToExit($question)) {
+                if ($this->userWillNotExit($question)) {
                     $qAndA[$question] = [];
                     $answer = $this->inputReader->provideAnAnswer();
                 }
@@ -253,5 +253,14 @@ class QAndA extends Command
         $questions[] = Lang::get('qanda.exit');
 
         return $questions->toArray();
+    }
+
+    /**
+     * @param string $question
+     * @return bool
+     */
+    protected function userWillNotExit(string $question): bool
+    {
+        return !empty($question) && !$this->readyToExit($question);
     }
 }
