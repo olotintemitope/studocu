@@ -49,4 +49,13 @@ class ResponseRepository implements ResponseInterface
     {
         return $this->model::all();
     }
+
+    /**
+     * @return bool|null
+     * @throws \Exception
+     */
+    public function reset()
+    {
+        return $this->model::truncate();
+    }
 }
