@@ -15,9 +15,9 @@ class AnswerRepository implements AnswerInterface
      */
     private $model;
 
-    public function __construct(Answer $question)
+    public function __construct(Answer $answer)
     {
-        $this->model = $question;
+        $this->model = $answer;
     }
 
     public function insert(array $data): void

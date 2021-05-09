@@ -14,9 +14,9 @@ class OptionRepository implements OptionInterface
      */
     private $model;
 
-    public function __construct(Option $question)
+    public function __construct(Option $option)
     {
-        $this->model = $question;
+        $this->model = $option;
     }
 
     public function insert(array $data): void
